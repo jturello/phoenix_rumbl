@@ -1,3 +1,4 @@
+require IEx
 defmodule Rumbl.UserController do
   use Rumbl.Web, :controller
   alias Rumbl.User
@@ -14,6 +15,21 @@ defmodule Rumbl.UserController do
 
   def new(conn, _params) do
     changeset = User.changeset(%User{})
+    # IEx.pry
     render conn, "new.html", changeset: changeset
+  end
+
+  def create(conn, %{"user" => user_params}) do
+    changeset = User.changeset(%User{}, user_params)
+    case Repo.insert(changeset) do
+      {:ok, user} ->
+      IEx.pry
+        conn
+        |> put_flash(:info, "#{user.name} created!")
+        |> redirect(to: user_path(conn, :index))
+      {:error, changeset} -> 
+        IEx.pry
+        render(conn, "new.html", changeset: changeset)
+    end
   end
 end
